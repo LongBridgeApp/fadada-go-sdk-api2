@@ -2,6 +2,7 @@ package fadada
 
 import (
 	"net/url"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -37,10 +38,12 @@ func TestAccountRegister(t *testing.T) {
 }
 
 func TestGetPersonVerifyURL(t *testing.T) {
-	verifyURL, _, err := client.GetPersonVerifyURL("59669721A0BC651ADF68CE491014345F", "https://mp.longbridge.global/foo/bar")
+	verifyURL, transactionNo, err := client.GetPersonVerifyURL("59669721A0BC651ADF68CE491014345F", "https://mp.longbridge.global/foo/bar")
 	assert.NoError(t, err)
-	// assert.Equal(t, "041b33c5014c458ba0e9aa41b982f0b2", transactionNo)
-	assert.Equal(t, "", verifyURL)
+	assert.NotEqual(t, "", transactionNo)
+	if os.Getenv("CI") != "1" {
+		assert.Equal(t, "", verifyURL)
+	}
 }
 
 func TestApplyCert(t *testing.T) {
@@ -64,5 +67,8 @@ func TestGenerateSignURL(t *testing.T) {
 	assert.Equal(t, "59669721A0BC651ADF68CE491014345F", params.Get("customer_id"))
 	assert.Equal(t, "https://mp.longbridge.global/foo/bar", params.Get("return_url"))
 	assert.Equal(t, "Hello world.pdf", params.Get("doc_title"))
-	assert.Equal(t, "", rawURL)
+
+	if os.Getenv("CI") != "1" {
+		assert.Equal(t, "", rawURL)
+	}
 }
