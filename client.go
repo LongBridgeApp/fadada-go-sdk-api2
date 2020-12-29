@@ -191,14 +191,14 @@ func (c *Client) sendRequest(method, path string, params url.Values) (json strin
 
 	json = string(body)
 	return json, nil
-
-	return
 }
 
 func (c *Client) sign(t string, params url.Values) string {
 	sortedStr := ""
 
+	hasTrasactionID := false
 	if len(params.Get("transaction_id")) > 0 {
+		hasTrasactionID = true
 		t = params.Get("transaction_id") + t
 	}
 
@@ -208,6 +208,9 @@ func (c *Client) sign(t string, params url.Values) string {
 	}
 	sort.Strings(keys)
 	for _, key := range keys {
+		if hasTrasactionID && key != "customer_id" {
+			continue
+		}
 		sortedStr += params.Get(key)
 	}
 	signStr := c.AppSecret + sortedStr
@@ -217,7 +220,6 @@ func (c *Client) sign(t string, params url.Values) string {
 	h1 := md5.New()
 	h1.Write([]byte(t))
 	tDigest := fmt.Sprintf("%X", h1.Sum(nil))
-
 	allStr := sha1Digest(c.AppID + tDigest + sha1Str)
 	return base64.StdEncoding.EncodeToString([]byte(allStr))
 }

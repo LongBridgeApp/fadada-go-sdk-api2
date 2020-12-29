@@ -19,6 +19,17 @@ func Test_sign(t *testing.T) {
 	assert.Equal(t, "QjQ5MUQ2OUM1RTEyOTFBQkZDNTc1MkQ2Mjc4M0I1QjUwMjJGQUI1RA==", client1.sign("20191012114711", params))
 }
 
+func Test_signWithTransactionId(t *testing.T) {
+	params := url.Values{}
+	params.Add("customer_id", "59669721A0BC651ADF68CE491014345F")
+	params.Add("contract_id", "1001")
+	params.Add("doc_title", "Hello world.pdf")
+	params.Add("open_environment", "1")
+	params.Add("return_url", "https://mp.longbridge.global/foo/bar")
+	params.Add("transaction_id", "A100000000001")
+	assert.Equal(t, "OEU0OTM3OTBEMTA3NkJGNzE2Njc1NEI3NDk5QTM2QkE1REMwQkY1Rg==", client.sign("20201229100822", params))
+}
+
 func TestAccountRegister(t *testing.T) {
 	customerID, err := client.AccountRegister("104")
 	assert.NoError(t, err)
@@ -38,18 +49,18 @@ func TestApplyCert(t *testing.T) {
 }
 
 func TestUploadDocs(t *testing.T) {
-	err := client.UploadDocs("1001", "hello world", "https://cdn-support.lbkrs.com/files/202005/v5TpW6MH8rLqwvsW/Disclosure-Statement-and-Disclaimer.pdf", ".pdf")
+	err := client.UploadDocs("1002", "hello world", "https://cdn-support.lbkrs.com/files/202005/v5TpW6MH8rLqwvsW/Disclosure-Statement-and-Disclaimer.pdf", ".pdf")
 	assert.NoError(t, err)
 }
 
 func TestGenerateSignURL(t *testing.T) {
-	rawURL := client.GenerateSignURL("A1000001", "1001", "59669721A0BC651ADF68CE491014345F", "Hello world.pdf", "https://mp.longbridge.global/foo/bar")
+	rawURL := client.GenerateSignURL("A100000000001", "1002", "59669721A0BC651ADF68CE491014345F", "Hello world.pdf", "https://mp.longbridge.global/foo/bar")
 	uri, err := url.Parse(rawURL)
 	assert.NoError(t, err)
 	assert.Equal(t, "test.api.fabigbig.com:8888", uri.Host)
 	params := uri.Query()
-	assert.Equal(t, "A1000001", params.Get("transaction_id"))
-	assert.Equal(t, "1001", params.Get("contract_id"))
+	assert.Equal(t, "A100000000001", params.Get("transaction_id"))
+	assert.Equal(t, "1002", params.Get("contract_id"))
 	assert.Equal(t, "59669721A0BC651ADF68CE491014345F", params.Get("customer_id"))
 	assert.Equal(t, "https://mp.longbridge.global/foo/bar", params.Get("return_url"))
 	assert.Equal(t, "Hello world.pdf", params.Get("doc_title"))
