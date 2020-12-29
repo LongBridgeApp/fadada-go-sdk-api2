@@ -32,13 +32,13 @@ func Test_signWithTransactionId(t *testing.T) {
 }
 
 func TestAccountRegister(t *testing.T) {
-	customerID, err := client.AccountRegister("104")
+	customerID, err := client.AccountRegister("105")
 	assert.NoError(t, err)
 	assert.Equal(t, "59669721A0BC651ADF68CE491014345F", customerID)
 }
 
 func TestGetPersonVerifyURL(t *testing.T) {
-	verifyURL, transactionNo, err := client.GetPersonVerifyURL("59669721A0BC651ADF68CE491014345F", "https://mp.longbridge.global/foo/bar")
+	verifyURL, transactionNo, err := client.GetPersonVerifyURL("59669721A0BC651ADF68CE491014345F", "李华顺", "51052119851107071X", "18200509114", "https://mp.longbridge.global/foo/bar")
 	assert.NoError(t, err)
 	assert.NotEqual(t, "", transactionNo)
 	if os.Getenv("CI") != "1" {

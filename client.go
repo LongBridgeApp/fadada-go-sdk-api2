@@ -72,11 +72,15 @@ func (c Client) findPersonCertInfo() {
 // GetPersonVerifyURL 获取个人实名认证地址
 // 调用这个，给一个 returnURL，让用户跳转到认证地址，完成认证后，将会带上认证信息并跳转回来
 // callback?personName=李华顺&transactionNo=ab4feb43763e4a31bb5378d33b199f05&authenticationType=1&status=2&sign=NUU4MEVEQUREN0RFMDY5RTdDRDFDNkY5RDU1M0ZBNkZFNzYwQTIzNw==
-func (c Client) GetPersonVerifyURL(customerID, returnURL string) (verifyURL string, transactionNo string, err error) {
+func (c Client) GetPersonVerifyURL(customerID, customerName, idCard, mobile, returnURL string) (verifyURL string, transactionNo string, err error) {
 	params := url.Values{}
 	params.Add("customer_id", customerID)
 	params.Add("verified_way", "0")
-	params.Add("page_modify", "1")
+	params.Add("page_modify", "2")
+	params.Add("customer_name", customerName)
+	params.Add("customer_ident_type", "0")
+	params.Add("customer_ident_no", idCard)
+	params.Add("mobile", mobile)
 	params.Add("notify_url", returnURL)
 	params.Add("return_url", returnURL)
 
