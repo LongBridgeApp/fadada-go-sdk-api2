@@ -132,6 +132,7 @@ func (c Client) UploadDocs(contactID, docTitle, docURL, docType string) (err err
 
 	if gjson.Get(json, "code").String() != "1000" {
 		err = fmt.Errorf("Response not success: %s", json)
+		return
 	}
 
 	return nil
@@ -154,7 +155,7 @@ func (c Client) GenerateSignURL(transactionID, contractID, customerID, docTitle,
 func (c *Client) newRequest(method, path string, params url.Values) (req *http.Request, rawURL string) {
 	t := time.Now().Format("20060102150405")
 
-	sign := c.sign(t, params)
+	sign := c.sign(path, t, params)
 
 	params.Add("app_id", c.AppID)
 	params.Add("timestamp", t)
@@ -197,12 +198,10 @@ func (c *Client) sendRequest(method, path string, params url.Values) (json strin
 	return json, nil
 }
 
-func (c *Client) sign(t string, params url.Values) string {
+func (c *Client) sign(apiPath string, t string, params url.Values) string {
 	sortedStr := ""
 
-	hasTrasactionID := false
 	if len(params.Get("transaction_id")) > 0 {
-		hasTrasactionID = true
 		t = params.Get("transaction_id") + t
 	}
 
@@ -211,12 +210,22 @@ func (c *Client) sign(t string, params url.Values) string {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
-	for _, key := range keys {
-		if hasTrasactionID && key != "customer_id" {
-			continue
+
+	// 不通的 API sortedStr 包含内容不通，具体见文档
+	switch apiPath {
+	case "/uploaddocs.api":
+		sortedStr += params.Get("contract_id")
+		break
+	case "/extsign.api":
+		sortedStr += params.Get("customer_id")
+		break
+	default:
+		for _, key := range keys {
+			sortedStr += params.Get(key)
 		}
-		sortedStr += params.Get(key)
+		break
 	}
+
 	signStr := c.AppSecret + sortedStr
 
 	sha1Str := sha1Digest(signStr)
